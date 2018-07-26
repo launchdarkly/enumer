@@ -240,18 +240,20 @@ func (pkg *Package) check(fs *token.FileSet, astFiles []*ast.File) {
 }
 
 func (g *Generator) transformValueNames(values []Value, transformMethod string) {
-	var sep rune
+	transformation := func(s string) string { return s }
 	switch transformMethod {
 	case "snake":
-		sep = '_'
+		transformation = func(s string) string { return strings.ToLower(name.Delimit(s, '_')) }
 	case "kebab":
-		sep = '-'
+		transformation = func(s string) string { return strings.ToLower(name.Delimit(s, '-')) }
+	case "json":
+		transformation = func(s string) string { return name.CamelCase(s, true) }
 	default:
 		return
 	}
 
 	for i := range values {
-		values[i].name = strings.ToLower(name.Delimit(values[i].name, sep))
+		values[i].name = transformation(values[i].name)
 	}
 }
 
